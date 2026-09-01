@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Viral Video Gallery</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0b0b0f;color:#fff;font-family:Arial,Helvetica,sans-serif}
+.header{padding:25px 15px;text-align:center;background:linear-gradient(135deg,#171722,#0c0c12);border-bottom:1px solid #292934}
+.header h1{font-size:28px;margin-bottom:8px}
+.header p{color:#aaa;font-size:14px}
+.search-area{padding:18px 12px;max-width:1200px;margin:auto}
+#searchBox{width:100%;padding:14px 18px;border-radius:30px;border:1px solid #333;outline:none;background:#17171e;color:white;font-size:15px}
+.video-grid{max-width:1200px;margin:auto;padding:10px 12px 35px;display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.video-card{background:#15151c;border:1px solid #292932;border-radius:14px;overflow:hidden;transition:.25s;box-shadow:0 5px 20px rgba(0,0,0,.25)}
+.video-card:hover{transform:translateY(-4px);border-color:#555}
+.thumb{width:100%;aspect-ratio:16/10;position:relative;overflow:hidden;background:#111}
+.thumb img{width:100%;height:100%;display:block;object-fit:cover;object-position:center}
+.thumb::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.38),transparent 55%);pointer-events:none}
+.play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,.95);color:#111;display:flex;align-items:center;justify-content:center;font-size:20px;padding-left:3px;z-index:2;box-shadow:0 3px 15px rgba(0,0,0,.45)}
+.badge{position:absolute;top:10px;left:10px;background:#e50914;padding:5px 9px;border-radius:6px;font-size:11px;font-weight:bold;z-index:3}
+.card-content{padding:13px}
+.card-number{color:#888;font-size:11px;margin-bottom:5px}
+.card-title{font-size:14px;font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:12px}
+.watch-btn{display:block;width:100%;padding:10px;border-radius:8px;text-align:center;text-decoration:none;background:#e50914;color:white;font-size:13px;font-weight:bold;transition:.2s}
+.watch-btn:hover{background:#ff2633}
+.no-result{text-align:center;color:#999;padding:50px 10px;display:none}
+@media(max-width:1100px){.video-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:650px){.video-grid{grid-template-columns:repeat(2,1fr);gap:10px;padding:8px}.card-content{padding:10px}.card-title{font-size:13px}.header h1{font-size:23px}.play{width:44px;height:44px;font-size:18px}}
+@media(max-width:380px){.video-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>🔥 Viral Video Gallery</h1>
+  <p>Latest Viral Videos Collection</p>
+</div>
+<div class="search-area">
+  <input type="text" id="searchBox" placeholder="🔍 ভিডিও খুঁজুন..." oninput="searchVideos()">
+</div>
+<div class="video-grid" id="videoGrid"></div>
+<div class="no-result" id="noResult">কোনো ভিডিও পাওয়া যায়নি।</div>
+
+<script>
+const videos = [
+  'https://viralvideolink7333.blogspot.com/2026/08/nice-dudu.html',
+  'https://viralvideolink7333.blogspot.com/2026/08/exy-couple-opps.html',
+  'https://viralvideolink7333.blogspot.com/2026/08/kochi-hybrid-peara.html',
+  'https://viralvideolink7333.blogspot.com/2026/08/dhola-dudpuli-appu.html',
+  'https://viralvideolink7333.blogspot.com/2026/08/snake-hole.html',
+  'https://viralvideolink7333.blogspot.com/2026/08/viral-argentinian-apa.html',
+  'https://viralvideolink7333.blogspot.com/2026/08/tustusi-apppa-viral.html',
+  'https://viralvideolink7333.blogspot.com/2026/08/misty-apu-cot.html',
+  'https://viralvideolink7333.blogspot.com/2026/08/cute-sundori-bubis.html',
+  'https://viralvideolink7333.blogspot.com/2026/08/pussycat-couple.html',
+  'https://viralvideolink7333.blogspot.com/2026/08/atta-r-bosta.html',
+  'https://viralvideolink7333.blogspot.com/2026/08/dab-candy.html',
+  'https://viralvideolink7333.blogspot.com/2026/08/viral-by-tg.html',
+  'https://viralvideolink7333.blogspot.com/2026/08/slim-buby.html',
+  'https://viralvideolink7333.blogspot.com/2026/08/gulu-mulu-duddd.html',
+  'https://viralvideolink7333.blogspot.com/2026/08/jhulonto-ballon.html',
+  'https://viralvideolink7333.blogspot.com/2026/08/koci-jam.html',
+  'https://viralvideolink7333.blogspot.com/2026/08/kochi-seasonal-litchu.html',
+  'https://viralvideolink7333.blogspot.com/2026/08/viral-smiley-apu.html',
+  'https://viralvideolink7333.blogspot.com/2026/08/lomba-biggg-dudd.html',
+  'https://viralvideolink7333.blogspot.com/2026/08/koci-koci-doood.html',
+  'https://viralvideolink7333.blogspot.com/2026/08/sunflower-magiis.html',
+  'https://viralvideolink7333.blogspot.com/2026/08/osthir-kochi-mals.html',
+  'https://viralvideolink7333.blogspot.com/2026/07/lollipop-lover-apu.html',
+  'https://viralvideolink7333.blogspot.com/2026/07/cute-rubing.html',
+  'https://viralvideolink7333.blogspot.com/2026/07/coto-lebu.html',
+  'https://viralvideolink7333.blogspot.com/2026/07/desi-kochi-pepe.html',
+  'https://viralvideolink7333.blogspot.com/2026/07/viral-kochi-aunti.html',
+  'https://viralvideolink7333.blogspot.com/2026/07/kala-jinish-osthir.html',
+  'https://viralvideolink7333.blogspot.com/2026/07/desi-pompom.html',
+  'https://viralvideolink7333.blogspot.com/2026/07/indian-gavi.html',
+  'https://viralvideolink7333.blogspot.com/2026/07/brownie-sundori.html',
+  'https://viralvideolink7333.blogspot.com/2026/07/apur-gosol.html',
+  'https://viralvideolink7333.blogspot.com/2026/07/kochi-khuki.html',
+  'https://viralvideolink7333.blogspot.com/2026/07/paka-pape.html',
+  'https://viralvideolink7333.blogspot.com/2026/07/desi-production.html',
+  'https://viralvideolink7333.blogspot.com/2026/07/vamos-argentina.html',
+  'https://viralvideolink7333.blogspot.com/2026/07/chad-ling-pong.html',
+  'https://viralvideolink7333.blogspot.com/2026/07/bangla-maals.html',
+  'https://viralvideolink7333.blogspot.com/2026/07/premium-buubs.html',
+  'https://viralvideolink7333.blogspot.com/2026/07/awesome-pompom-tipatipi-couple.html',
+  'https://viralvideolink7333.blogspot.com/2026/07/young-couples.html',
+  'https://viralvideolink7333.blogspot.com/2026/07/village-hijabi.html',
+  'https://viralvideolink7333.blogspot.com/2026/07/maal-of-panjab.html',
+  'https://viralvideolink7333.blogspot.com/2026/07/viral-duuud.html',
+  'https://viralvideolink7333.blogspot.com/2026/07/kochi-norom-dod.html',
+  'https://viralvideolink7333.blogspot.com/2026/07/nice-bby.html',
+  'https://viralvideolink7333.blogspot.com/2026/07/desi-unknown-jinish.html',
+  'https://viralvideolink7333.blogspot.com/2026/07/indian-kora-mals.html',
+  'https://viralvideolink7333.blogspot.com/2026/07/lal-bahar.html',
+  'https://viralvideolink7333.blogspot.com/2026/07/viral-bf-n-girlfriend.html',
+  'https://viralvideolink7333.blogspot.com/2026/07/madam-gita-rani.html',
+  'https://viralvideolink7333.blogspot.com/2026/07/brazilian-holudia-pakhi.html',
+  'https://viralvideolink7333.blogspot.com/2026/07/bangla-maal.html',
+  'https://viralvideolink7333.blogspot.com/2026/07/kea-dwa-unlimited.html',
+  'https://viralvideolink7333.blogspot.com/2026/07/boro-kodu.html',
+  'https://viralvideolink7333.blogspot.com/2026/07/boro-boro-dab.html',
+  'https://viralvideolink7333.blogspot.com/2026/07/tostosa-mango.html',
+  'https://viralvideolink7333.blogspot.com/2026/07/rongila-apu.html',
+  'https://viralvideolink7333.blogspot.com/2026/07/kochi-kacha-mals.html',
+  'https://viralvideolink7333.blogspot.com/2026/07/mango-aunti.html',
+  'https://viralvideolink7333.blogspot.com/2026/07/viral-nibbi.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/virgin-sundori.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/air-hostess-appa.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/cute-apaaa.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/awesome-pompom.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/romantic-couple.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/lal-bazar-er-meye.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/cute-celebrity-viral-video.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/julna-lauuu.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/indian-rosogolla.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/confused-hijabi-vibes.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/liverpool-university-girl.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/didi-thap-khaiya-khusi.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/sundori-apa-viral.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/pakka-jinish.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/fultusi_01935717521.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/gosol-er-vdo-bf-er-jonno.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/choto-gas-boro-maal.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/indian-hamba.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/tasty-lollipop.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/lovely-apa.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/sada-sada-kala-kala.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/cute-cute-d-u-d.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/joss-maal.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/paka-maalll.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/sunglass-apa-opps.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/premium-jinish.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/laltu-fengering.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/paka-tomato.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/model-apar-lau.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/cute-apa.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/dairy-milk.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/aunty-big-big-size.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/sundori-boudi-fingjaring.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/rosmalai-bandubi.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/osthir-couple.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/omg-sundori-apppa.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/santa-claus-apa-viral.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/ro-mans-video.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/beautiful-sweet-girl.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/sundori-apppa.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/vodro-apu.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/indian-didi.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/hijabi-cute-somosa.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/c-magi.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/chinese-maaal.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/didi-monir-romance.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/viral-pookie.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/boudi-akam.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/sweet-heart.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/kora-sei-jinish.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/rosmalai.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/viral-sylheti-furi.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/boro-boro-duud.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/bf-gf-os3r-moja.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/duddd-wali-apuu.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/orthi-apu-jenaidah.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/apu-r-gosol-video.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/ore-osthir-video.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/opps-sei-video.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/pakistani-sundori-maal.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/cute-sundori.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/coxs-new-student.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/boro-malls.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/kora-jinis.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/borolox-apa.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/tattoo-apa.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/hot-maal.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/naika-pro-max.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/nilpori.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/fultusi.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/mota-bobis.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/sundori-komola.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/julano-litchu.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/green-birds.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/chuitia-couple.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/kora-mal.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/blog-post.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/lal-tuk-tuk.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/pakistani-product.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/bd-boudi.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/lovely-looks.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/dhola-maal.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/lal-pori.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/big-title.html',
+  'https://viralvideolink7333.blogspot.com/2026/06/ruposi-aunty.html'
+];
+const thumbnails = [
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgBaLoKeAhtHGofYkUjfKCLketGtX_aKbJXl-7E0jJ8i4MmDRppIi7fKewskC4-rHt5rF5SnHwg9MGnX6qGkPZgVCb09nAbcRaDmBhb_lxKErbF5I2UROU0GnfskRQg1AyfLFDTJ7UkN03wDb-1N4Wu9_ygeC2hZmPI-ycVxN2gTAJq4VWoAlLM6I_WHhb5/s1600/1000129377.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiTezKlXJDyHEQBapgosagU8E6DKraEmr0pfJIXUfRCDAxMtMs2sMTllEjae1OG9zbycFVYKSjZhT2b1h9XxL1g85mfWMnEO_UtPYfTFw9Ujo9uDQYrSkczl14hPZeGiUzyaUxQn5qZDZMVypZYrwM7LvqxSj_qvYQihQ89ElDfayBbxI9C8jcELuuUZ0w/s1600/1000129664.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEif-sYtcpe0mqPmBpMhrA_TByUVDS2LoiIki233xVAeHhtLlYE87lk_E-bIe_6SVUDc6fNlLmRnOzjWI3bN44qMyJUeQCPaY7-CpT9rfWxyw_ibYce-BCJ5yGqKMLLVjmB0oTje9h6j2pUCw8akQoDdiCrhSOD9p5P87vZdGJWnuCcMkg2E4R-3QgJ_Eus/s1600/1000127018.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjFCIXs3nep7Ih6_xVKiexfLADN2UESyNlkVoxqSjBFmRsp5pI_dDdDMrgnQMgnMzF9cJvDHW2YYitraLkjni9qeJXxtSYPYdzEGh6Dr0jajzOYWPKiyxhPFeThEG0uiTett_XS2cGnQt7Fx0IgWX6trx6z64xNzODPn955MIwrfHB7dgCSIQpeI8Kxl4U/s1600/1000126804.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEibZ_8FrzGBwyoNpsaFqwsh8ccdCST66mR3aeptfwoCOcGSh9FX87p0rfWzYyTuC6WwUdrORFtFyLvDt51JP97JOShiOveLzUnhFkJbIJKRVRXs0eXaJHSJl0He8bcm0I7_vLE7yhr1nNB4lq1n_9_2bPMHy8veEu364RdCU3pQmdQS1R30rk5Kcg1o7bs/s1600/1000126529.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjUL_gfprK8nLlRtcxcD8yJgoCNB06biU3XHsgiauG_6Z_ddCdH4_9chmqTlDk2N5ISLoEmBJQMcAe9WPC4dfEPSLKho93BqT-3hL3W8Aee42ixetD5VnjT4XCOoSGMEj2hg0EeMcYHcB9fEFIVgyB2O9KS8xFuAzuMz74UvNaipPlYbaLGA-BBXmNOPXE/s1600/1000126455.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhGneNjnHHf9PB7O0mIk8kzIHySMBdnmgMUtA0g7wXHpDf7fToGdf0xPN04SdfTcUGk6s_FouzY8BDfe3BFyOADudYC7sIFqJLJZVTKbadt6RG-I8r5zrh9YnPSPimyFUAB9_BehjIFklf8ZaTsDpjHPHxv0ithf0ViWezWqkKr3rh1IRS-XjehoRGv0Fg/s1600/1000126447.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgb6k52vHat8BXmDM2BZmWf3sMIAG5j2MegcVb0JcCjnXEJzUxt3OpsS1qriF9dTnpQaex8O-N1gebGBHYxmzxzCu8iWNSpNAYz-qg6GjfDAEiG2VVYgMQgtza6GnzZqZUl5yqvEifZpYESI9tZSEs1hz_OQ251HqNeUnZLAoPxWv2ygkT9ZWdBNKfs68g/s1600/1000126013.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhETobclOa3pkbUeUX5lbAT3RBC-TQhKlWyWGL_c6Y45AQHX8CIx7PAPtIJ3-iYv4k0LpLYA6tN1OOZefEq7NVx6a_5kA-q4FCnDhswbv3e-BcmFj281Mpiv_Dw-Ing42RFvvbvZal6fGoZqDOhGmNkkkCynrYVQwCjeDvyL8abSfWMOHs5fc_ovEVyXj8/s1600/1000125919.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhuXkpiibFtbTJj49xl1qAqlsMbKfr8SZnSQ1px-DxAzIPR-OibOLdVO3yNGspNf0J0NJYfXYie9lHdOPHOwNyiqqEbUC_hC6TmuIOCTVwVeFN4KFpxfCZK5KOGCvyvhZDuyaJRyNxK70TvaFzmr3Dw87CgKwuROZyXgGTNWpxuByBlKCwbTRxCIfqXQp0/s1600/1000125928.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjKeypOkP9P0zziFeTS0Alkc5A9KV7ny-_u_6QbHIUIX85BT9J4aPLZj_TQ3C0H7jc9AqgoKH5kEUSu5Cu3QT7Z3S1eeBhdinhMcMPT7ao8zTn2HjfMk_kSPedzEHDiy5Ro7BOlVwxgnsloBBUuOj_2s2bIy_dbxbieMfDlqZC9BPidSXKnHytrpRdx1dBz/s1600/1000124122.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhP7dM37i7qxFT8dhjctwwqLEK6kpDDTJ0HOdNYP2fWYOEg7vPw-S6gmClMZOa_Nvv9p8_uIn7UKQEMOjbVGCBmyH690-12dAnLPxqmpcyV5hi4e7XSxoILP9YHcyJ1EpJ-_sncWGIJ7VfrAEgt75bYX3XUa_PPbFzJWti1hQwNziqJHpc91746w031cWc/s1600/1000124781.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgMilP_nG7jjmp13z59bm-z8stmgVb8vjQcKrTYGFHZwJh7_ndEJIDt8Bdg0DfLbHIdWHWq4WFcLTacwJbJ3K5tLsZ-HVJn1Cos5pUlep-dGEuSImFTlOkuJw_SVdbz8P5mtqBlHVIISeH6Wkr6tn7r8tqPlTR7R22_z9jIAHBoZwRss4gsODMR14pQw5E/s1600/1000124809.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgqNyheIOKgfB55U3VYL1tHdwseIO-FkPODYLe-IaN1VMh5m0mNJ4FldmJ31Bu4sAmiPpIYFSmOhbRfk0DoytFTT_5R6OeMsw2SupKPaxHtcwElJCHihO9wR1vUF8410TWBS2R_znbrAJ0uHYDQH4BAAqaA9RODyzEIDsVEbM9OBDmqI5UqiEIO_u51IP0/s1600/1000123688.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgGi12BVZbIHLp4L0NqM1pK-_ciqnX3JpXwUCPWVsFNbVtX_Tb4bA4n_G5qDmxZLMxxLJn28zLY94yq-V9Z5XKvwF-tDNFVzWiDej2li1dEFGEizX9n-JVlPcmhqNvpG7t4oFqtBDbDdXYUghkBPMIledujc871f6cYeHkH7voKmyarhav5L9vWZ9ASO1g/s1600/1000123558.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEi_APbUoHaGstPf-h0ABtyvHJ_G_D0f7ZPKS8GFvR6emRiio3vFcho4So4d8L5-tI2er0ygKxvfQ1XERbBk9DPgCwYuXGKX4SLY-9thji25jhO5XqEephQHk_2uCEK0TesrFyS7icMYNYCyaok3lP1wOCRj03aYscO_3-9zxH9moEQJnqJhEn4k1qf7ISQ/s1600/1000123575.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiXOuCk_YnWEuzslcxuIRgLYAWbeS4ZbaYz-CQA_321XE2vWhTf9XlaIDbygERJIx-qk_7Vu8Og76QORsTuqXC8D3glhFqe535TwLB52ypwN_v03wNZaicyVw0Qf4zhjScp46HQ23SVVlea5PC9zn3fd7DAiypquplSjQeIrUwWY3HXN7TXvRyfBEcEibs/s1600/1000124179.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj9fS1grzn92-R6LR8VSQnmlwvRw00tCmaXGjtmSQI0-nGhGa8cSrBI8cL8eXuKmBpSj6zMcX0KHFAd9k8zOmotBrGlkZgZifjD_G2napf3GI0TLz7MSuzaZ2_VaL6JEjRAXEO2d8Og-vk-C4zsxHhnYksWKTJlAmO5e1ZePvUSjFUqBaxKRDC4aQgJF4k/s1600/1000124202.png',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg_qxJW2zmCk1r5V-As8fSh_I2Cp8pQPt-UCaRQe7PN2cON-cY29Hl0mqy1kkRyG_19-D-ZTPB87wOfzrQtsR6certldZnAhNwwlKEABPhBqaa6Vq1y2bfniA5dN1CcOQICgNVlsJWCLPlhXAcl8uqYgVK1MkNpRX2ie0B_gR5vOqhKJyecqsJfXxgRQ3k/s1600/1000124221.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEioOD51FvIlEBa1WIP08oAXA38ajlPtSrg6MRaAz2yPjOb23mLGUygncn4yIDIi3h5D2PJb7QWJqDFpC64F0Ky3TSOx1poLtql5Iy_HrTqWrqO1vkPfd7NBztQpSTlaC3rmUW5BwfFSGZsjtT-i4UZ3ecq1fc39_cIY3v1yfJ1alvfukkOmm5NBQ3wGmBo/s1600/1000123650.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhH2bFlRYszcmkgh5G_zHhbi_ZXH6pHodihRsAsY1oxrVOpqz3Wdv6WOsYNAnFEKAHFyYwzC-NF7PTgs7zo4yAHffrVSR-30QQ0tdta-BHB1bff_EWne5MN0p6pOCCehyyiqtqXl5CS6RW5EmtHNoKo4IdQXOOcR_WG40VZTQ0jfcq8VM4NEp7nzayuFjg/s1600/1000112549.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgXmbSXaU6DeOhEq4nF-f1sh7Fh2tSXEpfd-j46FfSLFKnNTxtFQOoALbcex3CAXzbkQPHpFCoJAY3CE4ZawvGUoUVTPciko7u7VdqGsX-Ra8i_KWaEJNgwsTCMCe6LZw1MFYlEbvEGbHdj5IA_TF0KroYlTcGV9S1eelBvTlJmhvalQScv0_u0VAsgPFM/s1600/1000116588.jpg',
+  'https://blogger.googleusercontent.com/img/a/AVvXsEhsdt4rZMfiIOEkbB56WuYgOGgk3QR4D7NrNfMOkjeR7PXE63MJ5GuxtZEqeahaFiiJ_A2Z0MS5o84smifc8a7h0FopikVj046X10fsw_fdzuTSZq0b-rX9CfY3sXyVRDGFBP358ZHQ4BUty9bH17BVrOQlAHS07nseP0f1HEHXUUTSsmMnLlZnEvqabn4=s1600',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhmUiBBpcYewnNTzaK-3UiF8dHknzNhyphenhyphenYIgWTQ67kKDJvGwZGPHqihEnWc4qxQW81DqUU01Uthir5WLOr4DrIZvTBIbjpGhgLdszgNgBNj6-n9ATqt9IGXjP-QbkLCVYaybAa43EEFwfyQAN-_ZArQU-U04gRdSdgBqOGDw4YWn0DcHQW1km8ig51zfiXI/s1600/1000112284.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjg44D_aCir7lH2Vxmbvsjtj0z56HmCxos2r2z5WZH7wm1NlHo8Nk_IkWAt7-IEG3PyGMwDgL2k1KltFOUAZT1GPBACqJNrpjrb-nCb8guQtXJt_JxP-wM8gjFTgPKw-ql8pihxEMhgWmbYijC9VWHM4wB1E4Uf0ilSp4tQHbgTXAEQ99iiCE4EZNGhMOg/s1600/1000111763.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj4VJxBaYBF6dF9gSI6PsLSaDpmGXyS4jnFI9zFq-hXBXSnVwoGAC5suO7sivr_9Hp7PwLuhD9n0_ClgOXnJ18wocJAd9Cqo-MGKu5G3oAuSAiNPfXDMnm-gf8PRQnnrSA0zsDhgVRga5vdV0Pnhp_cUgFWcxnqO5H93UpUZEoXCg0cxT_yDzeASdglEC8/s1600/1000111803.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjktTG0W0lIUw84F2xZRQd7sgnMySsYDWRlERHQtXyttPDakcddbR7CyFnMuNT9Z7j1AECY-eHyu1n7VfUGgpI6keKeFC9AEuV957TWiGVM1kOtx0pkc9ohiW2s1CIR_KZ_OaX1lNyAiYedsqVWafjvO-V24HFG5eugk9gBBxJp1cwFUQfzEHBpfQekIlE/s1600/1000111461.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhXJwo2B4oNm18cRdBiHJHwShcaULf9JFr9Wb2pLVsaoS7U4iLu1-pDAeuRhuK_4Ct4zCK92F6-1vEFlQNmHfQl8SYfOS0jfOP5LR1l0zlgCk0Gcs0Hgh49zCUV3O1UDWWioe4OZhXuKPdLp5SAaYzdAbi3E4rMu58cG06SDEuFEymuUYCoU24ro5fw5ZI/s1600/1000111424.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEie53AUiCn-IfbG-QKMYungXUHivRPYQXlqp-GjX3YQJFzuXZV2lGb0fB8nv4cv_futl8JK4h5MzjPWqNyL9379-BY30Li_nBIidUJzXm7DQhrX92uYv0SEmJx4U4E9HTQyzzjoFhYh6iq0gSuqTamyEEluiC5IOZjhuI-cZsjjmnczdOtuaXpry_0CXRU/s1600/1000110921.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjXNRs4rxJKqfLrZyhI_C_XHBLKww2I0wfMw6pxY-dQV9klpSsT9ESfLvzYw_rHtejxMAxn4Vh5-H2-FmP7QID-H8auQD4c6SL7k_nsijF7PoOvbYmC1VwgRznK0xQ66AG6NycpK35vqN0Hw1Wi_07znYLmOH7f33WY0VUbScq4lo_PHcR3qFiTTqXnIYA/s1600/1000110497.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiXjtqCl94vJ8j-Mh6eTrVrzXpzXwaB7eFCPwzWqwvnr-oLjN_7MKywa_t87MZUyJuFZI_lSz-cPFhhusuqJcVKoeT2LayEP0qETPFhrbdZjtPAv19y9L5EUj7BOmor8tD1piKnmDYkmp5ByF2r0Q8LM0tcG1QKdHD2y3Qe-uviSjXMxXgQNURK07pz4OM/s1600/1000110507.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEizMOURY-mW8YiiiQ2sh-CkoQ5u09M94jAIwkkTJu3vYXZcAjFkHXstMTfTQbnEo2f9H5069fHmVsoCf3TpeH95XeumIThDSdaA9BwrZWCJWyP6Z8sKQMfvkXF9bBXCeCyPkBqrT9O3jqfmDV_m0lj5CF1fIUWIC7SeCiWwnPruVWd-vK5eUi_NWJBjr3k/s1600/1000110402.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhi2E-Pp2s6yPcY7nwxUGBY_V83myocOLimuFDs8PQFcNi1p1x9_5QKEu3isz49ZvMR5vbneqDvyORzpkVyC9P0T6IwBLZpaicWzmknBrPS52JTaYXmJJMYwlzjUt41z0lyNQoOaQ06144RNy0STS0hJANqGzljY6zXO_IlSmXESvYzfuOCQrYk3P-1aJk/s1600/1000110386.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEimsUOw4BvcPiM-_z8ZSvy2bCAhMbIfiWzBSHbPl7AnMN__zF3sfF5dbjLHLJOfi0jXDR6sl7jPBxLTwEIq6xpoY2WQAvw4Ma7RgxKM5rUmDS5n8Vceoxtn3NBm1p2ujYrv6hXrEslq05fgI4SKEfG340nzuw8B3xcEFMvIo2Q4PuJ_T6xCLcdXUKYEEg8/s1600/1000110564.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhnW_DHPeF2YXEC9hSP7HJ3zvH8ZYf6Ma8givCUqZbn-DOISWxLcJ7uoD1y8BJzKJdttyqnJaUlbeUYLRFV2lJhJN97jnvc-8hMZwouPdzI4t6SdpLBSv73P2Po161BDNtGaBRILYRLLJezB-82mq8rJcFBWRQpJb-FgUw_7OIyxbv032HhJARLkDUCfAI/s1600/1000113743.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjElQAxLlmZkOLX_G51lcgGep1wUBIgXX1BUTOjShQBwI8Guk6RpEmFz-CNA9cd2xGajEUV64C7VLFRwnG22KI0bMgiUp-xK-Uba4XV01IrfszK499V3LtkF2xu72KW3udeJPUmQnkcT1OgBUzetERCv6dH3Ss8a71DeXKEEBN4a4HIy5JLQEju9ukMwjw/s1600/1000113500.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhJtm5uuMO3ROqTP2eVkEAUjM4z-v5YzEsp9kZAgrr9a3UAqxITtKyA7OKTDpa0NDnH-NQ6IDExYI3ujhQ0sjvzfyT6puG_E1AiVY4_OIsZDfSJKax_uRueV0orLnY9Jl-HUS8QmCVw0Ebb7QPNI3-oHSb_LNakoWXe36XtIF7KF6VeAh_wdBk3sQED68s/s1600/1000110408.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhCZHkhJyRBlP6d-sqhSqWHMPXl-p2CZA_LuKHzrHeiJBuDjp0_-s0xnZpNkN9ttBk8oVPqlI1YEGolJ2Vw_kdpjBQHaew3KB-aIQHuhJZxUhE0_UIMLlNf70-PYSXEW8I2PVGPtda54ftvs2ed8yV762s8wTyj0k5MOWQZbGNP7CYBqxQWROKiRfC0NvE/s1600/1000110419.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEi66liNas31cl9ntZuLRUF8XVjwe-6wkRGioLQaCmrM41ECQhnHW-nA0_ytz2Qq0iZkOzv5HZ9yZyDvNwD2ilEowO5MGVjd7VpGcjZBb9h6YAK94H7BUI1_1DRy2Fg4-ZI9X8ykCzs1dL5Z-FcEl-znfq18ZJvZoQhzzQy-VPBwtm1xeTRKF1Hp89r1tp8/s1600/1000156414.jpg=w342-h352-p-k-no-nu',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiHVd8vT-ykagJvjxPD52yb_0OUM3PLzaX9DwUuLD67JiNrixpaoTZpQkIbXJezCS1VNBjIS6-QLbpNK1rX-MeMPU4uHdIISIwEm5twUaF4EBQIpMHteVZNg5QX5el9OtSOD9A03bF3TewclXAsWqkMtICz3wjlcRmqmizLvE87BfCm45gAEdIjNRmmMSUu/s1600/Screenshot_2026-07-19-15-03-37-042_com.miui.gallery_1784451829887edit.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhiycMqVzfPgI9s2SeB2Sh3liYTiZg3cEh74rhzx0ZK-4WmedBP2jq01Wv94cBIzkJ25HiEivQiiiCxKojdgDZ-98tzW_BXy4oprywPgCbfH6-JZY0bkX9dMbDqx-_7PzzabbWCS0XjhbRqmXjyFr1HylPAaPrK4bn5lgQzud44-Ylcuk2ta-cIS8L7cnk/s1600/1000153511.jpg=w272-h0-p-k-no-nu',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjN5LIBUP8hVK5U4XuchF900nzT5wMA27RSUHRd19Mj2vC96GMYiBInxvuYkGvA4RehyAu_z9NWr2zpnJXK60-J68SjzdAqMZMR8nTnaKxxJqX__Zi4zKIW9Vi_4H5XjouoCxSd_a7D7J7KbI0Nl1o18UoS0e5qVgyT_kI92X2542qT1LSVDkJyNAXRLgx8/s1600/Screenshot_2026-07-19-01-05-08-394_mark.via.gp_1784418164124edit.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiXijyA_WmcV623yyiQ_ssmCC1wEbNzHOpp1HtWcpt7ksHKWDdYxD1hxvU37K7TGXHRq12npW6BYYAfE4lYYU5OkycjwTqFUw8FqUw8YQwL8GzaPyqeS4ULuve4OkH98gy3RbtNPGsDnbkeExEDcnosn1TiwTkTAdYNurMkcf4nl1Wx4vopVTrx2KB-9YEs/s1600/6253689695896277742.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgHhaYUd0ELsqfYQVvyKudztgiNJM-3_8ctZuo3x8OvsuF1RCl0wlRDVMtFY1vj3ImcIMfx2fLuSgWTsrKHCUgQcEblIe0IRZDG8n89wAH0taRBPlx9Py9WuEu13VNTDZZSnx2-SbQ75RlVsIdubigHfzFVB__osKhy66nQ0acdxHfzeZtAyB38ubMVrc8/s1600/6260451310151255790.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhHZP3OYpjPP5KSVVJ0xuzrBlVwRJw2D_ZiwG6XyCDWkjycw35R6pwSROAVAy2aO6DsN4YxykIgqXYhBQ_IDMp70Vqd9-oHxTJGVUOA-6tMW_66U7NTihsuSAq3Jv9V9MvbzGtaAHf3y6XgyKj0KBM45dhq7vwOLMAvLxcwVCMDWEeiC0WMz4jqExxOF9E/s1600/1000156179.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg4PaF9NKlW9-t6s9QEfvh3aTe0YTEqIBli-UiW8j6dzwy15eFwLpQo75KCbnVfEIh5gZhqrVfLJoi6DiBFfpHnenT5ILICeG7SoOYMHRYAQrT-9gtfKhpKPLJe1kxz5EN3UkqEwsProvBnwI5T504d9Wn72bhizRwonEXBXfvhVMOvh5FSsB2z8UmsGB8/s1600/1000103157.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgYPHUOlfdO5SGWp35xkwmA216mqqd-C2qUPsh_pgECHCzfjmXSrifI8nXVvS8Yin1DjNZX9kkqROQ_QSl64NHL09CbYvYMLKP-ZxuQknz_XdZK4RIbm7SgoTRlE6mP8WlXfLH502-DPpaieDX2RXud5Deph6-ILG1FElNISOP_eKhyj8zLmOsKNVMA-ZI/s1600/1000105807.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhFpQbNgJcfnBXnnCaw1nAMMcHdFuDVtRssg_OliZdY3nRh2riL6H9bKZj0qf3b2u2y1ZPiSmQuF1FGRi7ieaer16rHvrnUjguf7vATHDYOlr2comxSwlsVudSprlv3YQiK2TfaT6lsxUyOkKVzuyu-IGwhHOvEqdFzWhesj3AW_mVsUJ2kQXAGNSb4OB4/s1600/1000105811.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjvAnUIZG_7atF40r_KL31r65-NQLGCLiTTUQjQ_yzXT9ImpMjxSpDplsKs_kh-3C50-jejZZQAr1vwFhyphenhyphen5Lnv0JHepMzzPWPHw4jVhuh7P7z4kP6CqlZFwZjh-Q5gIyDsGVm9zDwxxymYUrhNg8d_Sc00kpvlqofsX5KJXyhrJHJKjA-ZcPMHHipDC1qE/s1600/1000105531.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgFMCtUoBIpiNtz5dOvs4Vpq9bMn5uvHxGwhmpQFLmKA6sbsEVQNRdM2FhDtwGVLonMQMCMmP0N8lUoyDHUg-CaHVX26USnmhl8hcgGjneAdYRUhpbQC1W3ynz7RagM05eXKBR0k9iDAi8mkMrULxc_c7o9grh-3WIOOfLpLifCKmh-dfX2dF5HICSEUtTY/s1600/1000153439.jpg=w295-h352-p-k-no-nu',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgoSmg2mRg0DyFG9zlSYzKGWInD-nM46hlR3zf-A2Iqimo6zirjvyTn4zxhnN4J7k7EklHeYAr4WNnt4-XN1-rEgW3fyN4FIl2Y45W4kxQOjOFW3Qv-s6beXiNH8tyysdKdHQRPtoOd1VncwyJKm3xMgA3a4gQe2k2L50_234EjW9C6kzxawN-R6D-t01g/s1600/1000104885.webp',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhrr_EJ03iWJGtYa7TVQ1JAMxqvpTRw3O_uZI9w9l_-m1hUaF2bG6sySjfr3vKCRlWi72k9lz-d319-O9itshCGHxKGoBpTgw2FDnSgmjZFU8sED6a0jpEBMlZfYw-LMGRqXC3d_I4aM_s0PZKbT1Magf3doKEwuoGfp4NnstEOoeIZ5p0S97EE2fuWr1Y/s1600/1000103025.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEi7SAr9621jxGu8EasqsJnEit3CouI_4E31D5bJobVqIwS8a3b2j8Odde7gs4DszTw5cmxIyjfFNlrICvEFqr61hYTNC0NGgQjMN4jKybU9rxlNFziJz8BnpprfUPamQvW5aUZ3lA0Bh26YPsPnHfltekiP2mXCu-1LsKtl7DuoKSsC8wNRSfsRn8znZeU/s1600/1000104900.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEi72FE4_-eTzDoHMfMWUrEy6ZSDTQ9emc7WwU1pmp49ziPP0Mxi1Z2jhupfV7BgDupTZs4zBKaCAj1NPOwSzCkYhR5Cb3Co5zWm21axP0nr8ExMGJO4XrxdlZjdvETTq9QGWduGWiNz5q3K84Y3gj-2JsUwBaCgs9UjGKJjCEfv3ld9e-DY6jdpAqp_J5e6/s1600/IMG_20260704_002458_592.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEifn7zbihS-Jz6rbGhTuSR3cRLBVTktXzK80wXVuFwQoURNmQXNIog-4Q0OftWd2ksJfYauIbDR3EdTx28lUUvA2ebsxO6tHCj-cFr94ax6rBccCVToD6PTg_-cqtbj5VepEbJ7AgLZzUasb-9d2NMbWooSQxIZDaiRlXcLZ0KSUKVMItUDEYOX-_8au-C6/s1600/1000099656.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh9lKMlCMYHomjsVUUsLhyphenhyphenbfbsQ2SjsT0eIdOIoLPv4-8SokzxjXij4NgfEhELNWqb3yQjj660cq1h0R3Oi1vfSrfWJx9TKvJMSpwaGeVWnSrKVCH-rB-SPROyleGnQtWW05eF00PeRo0EyEfktx4ml_tEmyEJYXpl_ScUR-l9SuAdJDx87dAKlvmp-iDnG/s1600/1000099477.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjkh-_2q6rN2ScM6S3dnpXyxd6QMpLJOHx0BTAV_QbWZ5LuZBcQrqr-agtRConlifWfW7ADtTIzvS32Pua-G_rp5rsOE9sXU67BbWH-xfM3YHSXlZmLEzkiCwFC35v8vJPTlSwuY9tDXyWvduolMk3KSwb1WcsqLFudkdEUfyNT0kJMK-MqKQJic1_ztvX1/s1600/1000099505.webp',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjrQi8cq0ORWhCZZy_zA2S4YShXYI5WoaPIG3pUXMJ06LW6dLwR6PPjuRIoaP-NFIb1EBJNd1bzRwlYr0N46c3NhVvwQHJ9MwUeQSmYv8xW6URnhUxD7tkUW1HTtFhw-5GI736PdSB1MVwwZqRXp9klOxKFAbTe19BlVChyphenhyphenqRptwvcdUD0W9OvESc3QKJOb/s1600/1000099063.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiIQVSsjJ0LQFWg5omoZ0b6O8Q2polVzEXAkRTnE0BlrUohf-WBTSsvYYAUOluN-HF1F-mIfTmDA6P-2KZxjHKQHrqrUuAAgF3sY3KbYU9eZQDrT9sTiuY_13FFGONJJ6CN7Ui6JvgZvUWCdlCOXEOGAk8yWpsWd7Qm0xtY2NiN3Yjke4P_VNKTyV1ZQMsQ/s1600/1000098615.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjDjR1kr-zhn8vej9Y2uACKpBpPwph8mhiSeVOr9oRe3MjbP6CQJYNYlKC41bvH54qtZuS9WhsL2Ncme6NicCzlGLDch8AfNFw1VVJQp3cGQiTjYoc1iAlUcYcCHTlLnv490e3Gtnw3LMP1YFC01wCt_Qy_0ddH8UwenL4ne4SJ17NueslbaEcnpZK72K-S/s1600/1000098582.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgiL2B_VHnMb3UXwWi87WCb-uVOZWGtnEBa8JwL4YFf2AVLJCzReNC47vrEMY9WMMNcxZf-VyGpLfn_K8e6BCuv3jsbK7z4BTPOWhB1exGKqY9s_IOjbZCSpV7TSb3FuO-nkQMA9gVFgBZA1dudxAiQwApvYo6E6qarA9mtFvcWSSSoX0FeiJCWD58QjXqM/s1600/1000097555.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjyzTudVQ-wA6t_kehjbcGqMvfYQKj9i8TDCEmlrJ4An-uLx2xjJa4PpLQUsSoTNeBI0szlVWE-Wp4y3cjG45Jj2ZET5szPgOUSMoXii-rFg1Zd43P-3DTQokK06h8ZKwgiwPF5A7KlouJsg42SZPkVBqd6oQjjs6hzIAiK_qFMMUH_y9OiiI-zWatctM5I/s1600/Screenshot_2.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhroD4dBKJu9uoXkKJRlDbX11hSs-wHdAhlDd_xWzbhN4ylrclNObcuu8mDtsmPRi3L_QEZlyrVr18n5w-j2cXS9d7CFb5yrDqDNswcqywkB1OIFUSc0Pz49R835dw60w7KGQcRIyimsOJHS3eF7ZKgfPxd4EJHEOPsGPvwLG6AuPtS9Jb5zbHL8K5AwMZm/s1600/1000099223.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjwPCEWuZqkyhPcOfkvX7C1ia3LSTZiuGoop1N6Mitfn1gODzSBKQtvV5tmK6vgLg8uHMYdj03sMTgVfPMqg6bKbY27sqFytWYDaFRtbIHwwlnuUCCu1bf3i_OVp0PDB72MTK8UB_6nzg-jZYoWLO9Vvu4U8QJprHFoUUTO6etlNcDwV1c927D4n5vKkia3/s1600/Screenshot_2026-06-29-16-02-58-016_mark.via.gp_1782812627776edit.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhFWHarxhNWvwW0GcXCANeng1eK_KzSxBxsM77ORNB_jdv8tv5iHiqMQ5LEmD0r5ZDRGIYd6upOxZLoeH7CSpuj0kRIwLY_PEerYDTzdE8qky-uQRYDzivXZLxS1VFoMw5wo83sSjHJD_Gd5YWU9GIDkML1Miyt_aO87guk3oAwmwh9uy1TylycDcL8rANY/s1600/1000098833.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiP5Ey9ba50fAjAP5rLUFnqLynCQaAaHTN96oCO0GfE3TPugGUPyIPACpRXs4yzyxad9fr7QNRTeCh4HcEGQ4hs0PUn4Ty1T2a2GsrG_FWra9v34h5TS78fZFdkpz8vjSOWBnySPFqU-fY9FpvzGNwfX7sLjBH1eAWQy979lvcdvTgzpVyZ1MmPG6dEtHeE/s1600/1000098561.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEihkYuHsgUL5yIJTvD3HbNdjx7SJr1mGxAeknRf4ljSA8i6LHL3yjT5U8BB-_9Ceivf1-5-nvHsLmgi6XxnrefHlWvQy8YBCBMNh7SyN_Mma8iGKOemlGbsOrtAFi1LhKyRWLAine53GXhFlkJK4ZefpLYpk_aSlVIKbTzju08-ObtGmJoVzMGG1EhMa5-n/s1600/1000097818.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiW3XcN-To907f-tfwvZF_V5MUaG7ER7XBie6ttL2El2owQd0P1iVX0MfVqLR2OMBenGTCM6K3oJqtdkJzJ877Zs8857yZ7QGAIHRXImW8J1CmQcyv9oH9QoQZoNyeMxxc5Mir9WWosEsX5O2w0-eADOzE9IWFEtPRKCdwEDwK17OCgKi-K26FGI7cYzgE/s1600/1000152962.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgK7UjXTd3we7ORnKvmupltqrVQjCN820szw5tpWRrBTbDt43SE15EDXT3xgAywBSOTEUJTogKcHFOgC30TNyn98EKBkTsJgKSW4Ag5GFAbJQwxMPUkLDuMROpG0SYttp9d8HzQcbJdTkTRxw4GYBTTRft-7mYg4eOCzPxC0Kd-ZKFyXp63ClFkK39aWLvY/s1600/1000097636.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgvqu0kZdfA4hyphenhyphenRXAmy_O_e8Qbtj-QyMgr4_uC3mDfbeKQ8FSR-1dzOD36C0agkhQEbRHVQdfnDVO2dH7SciFlRWWLHsKzaPwwiacMPwSjP2Oj5l1N_goCBexGIMjSylw5Wl_UZ8t4RBWbY-OzRRR0_UV-otprQ8jlU_SB2Zfx_jYZrcJFRY0xuJK4X4Zct/s1600/1000097417.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhqPp1SRJiGGLV2nrp2pLW02jl0TU_dY_-V2M9XBeipRUAJVKHGUhQNqImKMdiyHVDl49rIpmTlGx16pvNNBEzg8cms3vOIs9rkXLCj9DGlBQHn9HgfKsIAKeOOE_mMv0ZShXRksDBpSU90c4V5Ds-asSVf8iqP1CMVwaOP69WoU5Ogi6H9HTYnkIA8WsG1/s1600/1000097389.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjPKA5oJyMDowRHWkoqXsHCVeEoMhkhOstiIUgF_5KEJ69Bz9ItHoJ4gUEuCr09I7FpfkI434CG4yDUSOK2zblTcvdaBkve_SEiccj7Czth3gHz4Oh3tSq0FE3bdL71X0OYQ_gsh0blRAzjd-VWRcHOpurW5zbH3mPMi83IEBmk5qXqNsHes93IJLLkssex/s1600/1000096887.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhpRm_udg0kZCfZYpFDsF2bC7p0o2u8vFgzkd2r1JajgXh02Ol4hlX_8hZ3ATThyAh5DeDXw5ZAKJfqH0Z5kreUNc0hCKMmLa5EPbHG3l2uBt4btpqR2bUwAFt5oR_ju5_TINI4WMxRLDP4aUEZas6gz31vLCbxNrzaCc10BRrGUN8GLmBM4Kl9cJbxxDcV/s1600/1000096197.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhx-fnRVyZOqQXVDn3y19G5m96dJGCCG3uoCnfCv0DadbyWl9HSG-TFwTfOBkmgMfARzPySv2ryUEOFNW2RtdNVuwSChaO0myWuLywN67OvZJ6Fq63E5DfMWNXHx-g8HGkHNM5RmPOsSr-Kpfv_6zR45an3REr2BhpUrgG-PbNnRBkoiEf5EmEBonnIRxFR/s1600/IMG_20260628_155951_894.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgihyphenhyphen6Rdd8vZrWoE3QBaEZEMU3DnOAZuLNgA9CyEbCisSBNztu6u5My0RWLKtP4SDWY7OSrVW_RmLl35eimw4oe_uXQs6YE3hjGKl_AmYwniI6B-u5_jQ_CpI_p_62moiStHqsOUmsLurZL31Ov6TAB50xEeEdojEMF5HPF2TJwyuCovgq0J99osBojxNA/s1600/1000152874.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEi5-6G3u0Mfpxr30eu_W287KWBZqZa7fGPSAZ_eeaTNDmn-C5Sts7empBlGggJfhqwEOBYe6nAYeVDdSK99pHK88LluS3A_YfsdTggM6cPUEjqwNIq05TL3KfVULwCWzO2g6bNyiRaI58XjlfdLO0ZeeqwohhSxvIkIUwwdfWl6LM33F1ZYPCwFKP2lDAQ/s1600/photo_2026-06-26_08-24-22.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg-fDoz05962Py2D3_m89e4lGU4RaDR00sF6etUo5n5Qgk8QRw1orxuQkQhFVWR7OPkcULCZGW70NLeR60MWxgoMbqwhWMPCEcyYFTK8wfAgkmKNPBOCd-DION1HafaKpmZmuhsKdv0V6CUkmw6w_QV7uvd9FxP68WW0nrQyXKWL0ylDdNJZDlbuqm6OfY/s1600/photo_2026-06-26_08-13-38.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgnvKuybErMy5DezHXtVHfgUZIUQRRrdJwPYLWihAsOb6MxhFx46-_8Exk4uwdgJ7A8RsGmXQNqDRD28ld_ZGXXiCBJD0heJ14BRt7ddRNR6YO6DVWyhi9I9j4wVzgX2ZJCpSnEUZ44oZpqXVogpisfiaL3i5na5Lz_WUqyB0nbDCo4aAQM7ystGH7D0pSq/s1600/IMG_20260627_031540_882.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh4MRSfOaxoLZ_zYx2Zm4M9NnTHR09CdxPLqVwODyzFLaX-Ppmi5Sds0KDYRkhdvFmBdkM6XCTdr8GJmr7_cMKl7SzY83cQJt4_gzHGwGgkCDShcEPkIqGb7o4pagit2fMzPaeHWF6aLjapcH1NMudM7ldtiWUvC5JbreQJLo2VGIdgKehyr5nF0LzIezFu/s1600/1000095688.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEifB4DEFxutXcdABm3qwY1xEOxJbIqQ5OkIsTw39-nUWosUx5suOvC4TS5oNuy68dXeg4nRwa3ZbVL6coZ5QMbImwmzjGtTjgl4-hWtRGUQAMMbItBwXh6k_kj5rf5-uGYQHzCE8O69Lwb7lO_2Sga8yvG2XtFHUyc_AX3p9XqxMLmYJw4e4aYRM-X1ZoOJ/s1600/1000095500.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj2RoRmbywkoFs0pBGFHDtO7tNVSLk2vrQ21ThIsQ80Gi_90joLEGQVmC7UZ1PJNuMqkK7i-xnqLqhUtGjx8j-5zUT1wBGuSPLrAwTewT92cHfHmEst8o6hnJb3t33AqOtxTZfMX6yOxwLZVI2x8WNGWkcAcSCJfPqq_n7DEDEbowLqfAMvtLHxFtiqrhQ/s1600/photo_2026-06-21_01-42-02.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEityvg9tUZv6HWn18CHKVZSjl-E_jlZhH-Tt0K819c07Qqk5Mm6onrWSW1TzNOrqpIX7VyW8evRTuWltWD61RtACAWRtBy9kOy-LSNCNyB_qiqZSWgJPDf4CcWdFgs-6fTCFg8bnXZHIOJBNvFpf6PeDPDR_W72cuDFGq1lbPdfX02QxNrvnd1Ww-s0LyLo/s1600/IMG_20260626_011540_608.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgcATOWhvgPSwxX2VtIO2BuKVSmVZrnUgF6yPlQCo45FpQom9tj62uJUwEUqd6-hu62AE1AVmhgZuHGfM3XHVbpoLKWUR1C6u9mzdrfj7yO3NnkMrVoNXyOLMDGu0Y_ZcM72YzbpbH2tgHFUMj0mIV7KO93FsipiGuupNVUSoPbCIfs3SoC789jzg34ancI/s1600/1000152364.jpg=w274-h352-p-k-no-nu',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgDiLnIiZf7W0c0OKNN7Ny28haw5bjxgqxbeRAD_1t4F3SiRxozvBIcKgiT4Zl5MSK11kvDJV5qezEk5Py9sVXNKiTEauI40L0xebz7UYlK2-OKZNf6sE4ytkzE0ICctNnfCgLVW7FR_PNvlj5Q8wdDD8HDox0OjLIz1DaCVDMWvTE8_vxTOs51d39JCrq3/s1600/1000151974.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiS6CNiM5CiKoYiikyssOu9bmpq0ekCqAAzXbxJ0ksIxJzAJJPPQQ7z9SqyzgGvGJxzwcVQSaj2sttenIWr6umfED1vKJoQUeu_HQBwNa33Z53HPcxAXg9BwdNEJhyphenhyphenrQkYoz-tPfaqnvjJR3QZ7WEGKCcRPKROHxLrog7yDd0vFN0YUO4ukGGS1HIEozGnL/s1600/1000151981.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiV3lXjJwS7nJl4BDNDgrFKfBV90x4NeyDuhKEJRSo0BHpcV5_cyfeVbOP8LeRCSirgAST1FmYhnHLa0gv0-rOcVsMANWrsRi1slwscEO67m0TkNE_VusAYeDu687-WViaZSRF68jXB3tADmZr1FFPx7JLnC7JeE7-objV69jMGfWBXLMIgh5LRHaI3oLI/s1600/1000151927.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg1DK-tjmSHsJy040wFv55KKzSXqmJn_P9QOEA1vgGkgXUwoVv1bV2P5EXljU7iA9ZJ2-b223xPRs4I_mYQLoEpxFSV3poIfWRniTWrQD_qKT0FUEXuX4GmoI7ht3LnzxRQIkIAzSmuwCaHDdhxhJ-3kIRziLO6sUOS70Fcj3jxZlQmKFMQ9c1E1uHdbN8/s1600/1000151791.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh7m9e4oElHCG9BVtqT5-tiL3HGg9ahwIGlFOLSw4YZ0rBhFyZ8bFvfgHk-rqXl2iGmVFfVlU2HBTQ7Nfxzjrqb3xHcMn7K2Cr70YT-uf-QsuN4cRmUAN9oIMKxYKpvfQvu516nySRSuZKQwCXWAOVtfhBs1MsMZnzbeGOy1Lr9ybua07BIlV3JYfZDotrq/s1600/1000089707.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjyZFhLIfO0Ya03da0EkqZ4xN3AlCAOy9i058nvHnpapYuLDBuJzbL6KogYaazG21D3ie0N00wzOEn1tzXgGmFLnHNIObWD8Ef6MRbYZS_8HwtFBnwj5EBrCA-XibNO3MZbYcuIQyCfkeG2-n76apZadoCQd_E_TrNjEbQlQbH0wsWEa9rwQDGXkAMVpU4D/s1600/Screenshot_2026-06-21-01-47-58-101_mark.via.gp_1781985010122edit.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjjnXy9d1hPpYMSZEcFNY5Fe-N7E3K_3mtN9TblGmVD1ggdiXjY2WkFC89fSQDd9aSHX0c6bMymiLc08jI5gL6JkiyAf-quOxiqQUiqHogfE9WAnj9qqeTRjasNb_yofqaF-cxL8UaIPyYb5CrBr4nVacOdu6aOVuKim6WCc4K46netUGEujD0wvxmSiehm/s1600/1000088695.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiJqvqIBIXF93s2WCsDOFtsznjZ9V6NVsoUtFmE_C5veiHqzhdwFog4h5oJsB_FdaIjqYwQT6SuSzeMceOH8QPq9bCko4HW4e9zA2U1FZ5RYlMJILv5N5LugBwbIdroPDC_sHxmpQRwkdNuvIrZvtXdBFazPtAogfZsubS0XTqWV3UlNfGXM78aWiPEDhMS/s1600/1000095216.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgPYOrD1IB8pa0ocG-5pakxu6pqUHdBCVsV_7guSizZWtG_73VPPyVUc84wdNExJrae8FO_sBmepU-zFBFI-Ua7Bc2nD9Y9AVYvqSKEjGaskVk3QWhFvLKLhu8Bff8zlZW7Gejp7BKWNASZMvtS3IQ8nbl7WvHfjIpdbDZA_fRHMiF8YSibEziA1DI-4ZaR/s1600/1000095197.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg6dVkKerwpcYfjt-nXHRaaNc-24xu-hc3yQGa5y-k-3ZA2K5PjQj4lfmvEyM4Juek3qAtG6_KwzonLYM-GcpzfSKLTmPW9dxLMSDlfUJsuTdk5EQctiK_pupuprcqDUc70_aGsqViKQ8_Gbqv07g44oVIeFeLCIoMRf7-zKJSCPemxJhhoxdQVuHbre7dl/s1600/1000093327.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg_ooBXtiOUOXX66r9063kdYg1XGXnEzOuQTPQp0gfNnCImmEyruy73wsNytLOr_fqH6QWadwlO-FBuhkwSyYVYfYC-FztyIkO822JMUbHvXPFfeC5rZNBJJca41DbmvfMvXmahEWlOTrTWIiRsaTUKmw6TGw0zWZZlxPA54rjwRn5grULd9nkqXXCy7o30/s1600/1000093339.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhtcJpxhNmr-3tun43M1FdVqj8Yg2We_ckytDUraLyoCg-RxK_OxgxXovTAlu3oKkQkrETsuBt7fuhyphenhyphenlIMB7AExRVQnWIA4A4-2nuB9AyTgp4Svy6KOwhm9L7Au4dgV09qijxdCYNLvUS2e-8HHWCwNfwOzqVc_oTPiD_c9DT7JVbkcr88H8DCOdvgLjmzD/s1600/1000093053.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEinxgSA5VmexpS8mHNvLxad_-4rSFxDiBPpTO28jUA0O77fLWkus5drCRC80cuN2jMf6VxnV-zopIaJgyAcNqBN7kJbZyZo_0Zp_yMVcTBAWNePtEO8kQjnPXezFfV5u3MaN15Bnv9X0hzcG7TZTGOCbZ56-UvcdV81KqleWw9vTJ9-XjvPLCRy659epic/s1600/photo_2026-06-19_23-34-35.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjpTnfKG6Pltuh8ZQBQnwMthg7R-7YOCeRdXRVUyQ47gQqjVnArK4TrXaAsukeGsQtMkRtTonmhDdYMtcnyGB9snArNOSGYzzMgrmz1bIzp_tIxiYkDb5ut9f-9OhLLc_IxT2JUXkEN4ir6gjBJMHqgql0uImXesmhIhNgbhfxAgxOrR5_s3m5z46thnOI/s1600/photo_2026-06-19_12-20-59.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhStBeqUX1PF9OfwqKMf6KCKH27Ua3GS3ICZzvOfcq0vw6FzhPgeHDBAipZg2aa7sZ8kyOUWfxu5fz6OlRjDcVib462nch2HkLo6L37qPaA02F0tFSRcLCogvznI160TCvJAXSrWp4ePIPBnVm4CXXFllC7ytiwd4CKfWJflN658d17b5Q6XjFd0BtWx4pS/s1600/1000088012.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEggAgjHcCVveC6j1-Vy_P5z-AS-J137MQQ2ycYKc95CEPHXhxOaVtR7ijJ6AxRZXD29a5YwwydpC6RDoBRfh-kF7x9snNQ_jFzsDg92udnaIg7DGbdYlRwDIaqpx9NFBUclmf1vWW9oXqjHKRBOkxJE_E_9HPDUp05y4vkrHh-ofK0sHeJKm9WqL1FO4Bs1/s1600/1000088020.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjnWWTUpn2P-XF162c0qkmbIoidpM5lV-qrBry5eJ_OjoQaEyRlaPfK6q0MqnS6N1o_NGjjwnO9YSn308PHkyjYIWIIYCvx6FSbmbla29qR72UOAcu8HzhWhtZIPtoObSWPwpAV6fSSQW1QwhOhNyt45OQ-4KIvsS1fJItrrYLVluEuGSo3uIsVCggn9eU/s1600/photo_2026-06-18_22-48-10.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEghNZ11Nk3a-iQimbB6jBQwUly4A1mGQ7eRRTaydQfCObEPtVTW0QhjXmZRxtlIQ20HNDQ6YAdsJE9Vv_U_YdXj7TZG76u9CZAdDNPZTRzrRUpSVRl75cWFbHUYJPGo0ypiRSXfXMwdDukkBHMXD-EQSHDeR8ovZhxZ3Ubdp5JD0z_6LaSH7BbCxf9rC_1-/s1600/1000092612.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjWvt6njq7qDtXWMroLxJOGG0GP-AWTjo7d5pcv7_76q6nU_1FsQvmMeNv2l9tH3xF69ir7pPZ67nnH_4F_qYGbsE1OPeggXGooidiLvdXRQU48JLX090VcyUQ4Rt-qgMAV-MrACi9eSWUsKU6k2bGfGtWtQgcKymm7_pA3KjGWEJ-23QJHYLeZwvyhulyO/s1600/1000092620.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEitpkNYBPPdB0sQ0i9Vj4TyO0fIfBKJJgNfgs8rnFk4g1kc_F3NJriqPC5qM2qDy1GeVe_Hh8qg07MV84eR1-Ak-24Nx4jPuY4RelGHW09z33hJJ5UYVFi2SInEITBE9vcKPhu5Wy84OAuAenHPKAkFmONJVSfi6nL9_TDUrRX8cKffJUShPYh706cg703T/s1600/1000092702.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjoYKOBGItNYIWZHrMWxE-AmX9vfSPanUodtmxzF45XBOUuW6tYsqCXTGPpuHV8vs5fEGvfdpYUcfxp0bQn1iloXTYvPkBl15wT6Z_4-ZPU6c7hLhcHq1zMjo2TLMUfDb-Nh2fRoIPcbP8lDo1rqpnqXpe6Y5FpJzWXphvwPbvMkJN6RbDxhlgV5QGwqkuK/s1600/1000092020.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhDy5jVbug3LQNyJ1Tu4bkRAYwSa1ZUDVE-E93zBACyPnBHQPY6VjkY7nakqUoXrNFNkv7Onh23NMJPlj1ANraPZOV9XL2NzBDDAQHQE9oNm_puDqygxP1AwdCMTqz0sY1JuUz2CdJOnY7BUZG45O6ffyzyXwrkz9MoYlERtSn9MLMYubPhrGrpgBy0LFJI/s1600/1000092035.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgFY9YVuwGYXIEEAV0ZlQT8EQGQwNxt7uBbIaiJKHGEpFIBdx6juQ5-J51d7CAfdGRGIkvFIDgi6MTiMZOr3YMeBYzqCpYjPSOcrQ1vktqNcxDZBWzfpus-N4AOS_F5_C0qY-yaRAEaDkOsr07eVMjki5XVVlIUtUS7zzCbrERS7lswR0qFV4ynnlz_YMIm/s1600/1000091382.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjvIBb1BPJJJuCd4gLCBy4GdqnOSQmL7F0oZJD8yGpkbWl6rFvlC_ZlYk5elacLu5Vm0OzEIddmWChM5ojf2oUfumlY_lu2p3Za021634TaDXZCjhQD8kOIaHjikOu7t9HqncGZ_d__1fukLkNYTuIM62TMC4nZF-cStQSIhos1bdNkunYdFMnXBXst-hnW/s1600/Screenshot_2026-06-19-00-47-06-072_mark.via.gp_1781808802808edit.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjNDpyfmPlHNKF1AL9a2aVrMnMTVaFZH9i2T169ikFopyKlPAfKPJYQC1_GUylhmudNUCgKy_mbXdsLhcQ8F-paNDhncheGmtTwcowDEvBbZiR8LH1Ik6xwOKcnV-iwF8X10DLHpD6kNvbEsoKvmtyJaeB4sRk9X0Qkaj_XszXSACm74R6o1MpgwZAK8i_6/s1600/1000090991.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhU4MrLnOZ79KJX2a-vmvml4GSWCqertpQVkByFJtD2oWpZUibtESaHLe5q_3Uo78IZjhw5n_9yKcZ4hV7gS4NR200i_hePffPqXXpmrEu15J9tS5PstuI85wJPr-qTma842wYiTb1vTXauWS4VLPeRsC95Muihgt0GWubkdWJjBxSbR543y9Vkl0rYvpK4/s1600/1000090417.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjhV-0eqtAIHkQZidZ1tjxOexTKxFWLAreMDrlEc7RbdTDHYJTLylyrFAXNKB4SzAZTOKKC3JLZuWUP8EdgrBZ7eQhD5D65Ffk24_Aai1JjqzGtq8Lky64nDbJyRsZuECUiBVuGbcioYBmgyKM7nxO-_jGdXARw29mikULT-o828Oipw0rOzhjvqRl-7TP8/s1600/1000090329.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjgLoou-OZ4avtxbyjC0mMJNLis5D_9oVXRQP2tvd2CO-5yNmnHJkOn7N0__KMzjL6IPHMLI6hzT3J4FTSx_h9_G_iFiQ1rplwjklzDo7E6Td06VtCxEejdz7P5djO1-SpRpIJOmqeh2tRnYQWwW6Xe6NO0Jo2__oVDYNyBFbtc7j34Za6AVdUB8Jf-ahA0/s1600/1000089516.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjMBPkBTORNsK0Upl3ce3IN5EniDjI78DGkg2zyo-_RIg1MjUDTFYO1-e9ppUHtMIWaWYm88HoLG2sxucnGPMjGGPbPgKRvXL_QZIUPjK6Q9AAcTJA_mwcllRjUkEmbRCns68SpQ3DNXgRPSp3N9CKPES8daGvj5QfDgTXphS2mW_yHZUAjJXZHFPJ-otdQ/s1600/1000089444.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg4fH1u2bzSoxn1DiYc56Yjb5frotsvP4R7Xp7d82NGAUhez7KILRqX4hK5ceopFMVonG3cTC5jubWSaN-3xWqUWL-iysMy_1cRc5krXP3tzoMRUmgaytLquprpgeBF8o6HTgxwmaEB0w1y2mU71ufjqiw3OE-bT3UfP52v5bUFXvTcACf7i2-AZB2J-Xo/s1600/photo_2026-06-16_21-23-14.jpg',
+  'https://blogger.googleusercontent.com/img/a/AVvXsEhPdQSU59BkXoV4eyZdPPeJIk3SNXaaKmiILNnyH33blUiArM2k8LzbgsXM837aALCSkIIdLflovNDT8QQWZLVisrUWxZwdtpBIXV2HvG-I8Wzy-tAP15VoGYu09P9UCBS6fpNYnNUcHDCl1de5IBp4V4m-ndAgW9Ru8_JCwt7TXlMim7SgYlf3A2NwxQnq=s1600',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgbZaj6E_9Xl0VYglvesPXJNgjKPKOngSDTkFkQdu_S-h9SUpUMuWEYbBp85Ai62IgeSnckmRYpIt_r0V3p4VWRyskez5eEkWnymZ_y4D8KU8Nc4mQg25CV9gXyIJTAImTHtxWS5lWUKl3sltBsUIsD3P4-mbxO2_2BvHi-NZCY3L0Rz0DXvBBHeFI9u1M/s1600/photo_2026-06-13_11-52-51.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgDfy0uGP8pcqk2mfpqJOTeo1UU_S37R8qQgtLXwJN4lPW-v7rceqWrsTSPfLoIAkytwpubhtY3o4AHOm5AJPGxZtovqUpKEjcElpzgmAhOVKid8fQJ599Oz9mQIN3KDvOZi-tvWX3GUXPm5T9pbMYC-xsjV-00-2JD0fJXVouL-3LvQsRYsNIJjZlRjOs/s1600/photo_2026-06-12_00-22-33.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg7QC_Fu0zvGXQJN2hJzcKXoS0XTEM96xX4qpR3TmXBpW7RuRXFfnXz89enAlEOFa1xcWxIac_yoYN8cilM7vgq_dN6nxo5qX3HQZV6YXwXNZIWH96J8k5abLFCKasaEkCVI8HnVF8KrDZm3cpSufEyqC9stKLDrfD7OcpOJ0X4SR49zrJ2A2yicWsqgymB/s1600/IMG_20260615_171433_259.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjvRmqzaRueKg12b68kkcnUedVSFUHX1d0DDRWKBrOkJFIEfr4Xwit4nmLAKaj5s8Hs4BeMpFTWKAFHcT3LEDyTbFWbWJcs4lTUemjnyVNjYyyp2wNxsgtv23JTGtgV4nbZhvllPrDZxJilk0F78VDIKUs1A2SDU5eLC_t7gdx5Pq2qCShVQHyUlJv-dhA/s1600/photo_2026-06-15_12-05-32.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhGNxTmGNXQIKiMS0Wmh94irUHCAd71SM0KH5iBRfscQfU61a3NjrnbVCG4wYZjeH2TOXyXu8WHtmQnea0wnjvRGCgHKz04QDs3HoPAHxDg4ym-vq9i89jxPkOSHEH5eue5JLo3_vFD_7wPu1VSpicHTdfhu-2hAGaDKC0PtA3_XM6XqIXLXwUseSxjDag/s1600/photo_2026-06-14_22-14-03.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjPMCZSyFnn8biCA6H8oem0-bML60EzZWlhboPuZLfA02uKEF3k0Hq8jh3fucatyg39zjAgypBm8R5eSMlpibBaSVgkc2hLYX5SAM-PDz8GFYGRq0yt2Wv-8zF6NbNNSdZ9lifBluJBFv7X8etpFT-5897EFhTiXOvIMm88mzn2zCVw7aM5as1QRGhHhDyl/s1600/photo_2026-06-14_16-31-07.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgNM__uo7cilgrpF7weDuQs979pTnfUQyVpt3ZHxmLNNiYegRhEFcs0xAOwtTpkbJthyX45FGeM4rfmg89sK4-r2CLcSnL1jyKDasT_w_LsOXPsQl6ktmIOtq1guh7s1QPyBNtJEk-ipE7-oEd4Dxzz_NI5W0vC2LZXSmYW_ohcS4Wj-72DT6MWJolSmiW7/s1600/photo_2026-06-14_14-25-57.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEicOi4aZIWr_ZtvM1VVNhW_oL9mrTnVWSZgQq96ZaMlQnwzar8Ppn9IVp7wji5sqQyI1p15-LlFwMFI2d_ELg79Yti8Ywtuh14AZgnq80xwhyphenhyphenMYkBNY0j8r_tMeRiLG2647QHzhCQPhA1hfvo6rxypGJyhudZ5PqpPyAUz11kUjMfzk9EbtErLHRBBTxqdg/s1600/IMG_20260615_162640_748.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEi9WCVTSgxdUpb_URwIcPP8I3kvW1OaYr_5Jw_Q5mVARd7MO0SlH67mxAWpMhrhObx-iEPAd9s434V55NGXzKhfUAN7iHeZtvyWJwMUNBZiyOlwzZtdlicGRKX_vnyeaA2ObcPQSjZYmpXC62MBJd3ci6QCl51Jo3SRlDdK5DCHlkkk1RzbJOHLOxucIf5x/s1600/IMG_20260615_160447_063.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg6GLmuNuG3t6RSdAe2GhPkaxaNVfCLPLXPXzKMRpRR6TfVREcx1qQ3pXP4wCX2FBPEI6z1Eq95bEo_KL7-WxhOxX1Ayson28vheHlsBM9Pya11kpXrUFG1BG7pW-fi0oMDraKKQ6gPEuYMymk_o2j5IH0c2_NhrtG_lKp7dIBC-HlZZjlYf4thZWSESlc/s1600/photo_2026-06-13_12-03-47.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiQ5YtIGrwm5SuFsLzO8LreXRz7wB3dRT8lOs4wiYyxoTGntrSZDLkR6fxqTUNEoPn-o7FtaWy_jwf4hq2a8KFleFSizR4xxcuaq1UCP4qMEcJDEtIq1EcUZsJ-CMGjBUCcUqsMI-SU2PGM_JDD2bYzyjgFo6KqxLxUKxh1UdU3dUQKZdwS5XC8hLdkrQ8/s1600/photo_2026-06-10_01-22-22.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhjsopTKhgSDRyCtZW6jc29DVqmqVAgZsnfXDq-MyahP705rj09sYFsYL_7-NjYp_jJ_znAEzLKd0T5m4_UIsk6ox2nF0O_NlqVBXOoAIh8vcQ52T2UyIA-cAK3syVTFaIx_Yt8o_pHptiEwNAiDsPZwaaus1rwOw6SYos5EqthLc6djb33ppI1mU0ayIZ9/s1600/IMG_20260611_000831_521.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgKUxYKSOLJDQmPxC-nzM5HCqujii7eCtVPdQl7znu_1QAQylJ-16a-a6fWtLYiL1ApdrzLSrOubDE4zw69_w29nZwYhDktI18k2lM-5Os24wYu20XkKFx-jDG66XbSUZSDbxxWnsW5u_A5UfeVMMtBFc8LG0B4ur3g9fU2LqCLNsOWEkav11pH-1RCSvBe/s1600/Screenshot_2026-06-09-14-01-33-598_com.miui.gallery-edit.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjQTtaxqZGTb7KDO8ua4-41hn63ScbjC2GviaolwqUV_yPn8S0lDb8Q2W0D2GU4cIeR-YzJAxi2pmc8XAfKbJCdiS_LtnPjuiHLDeBAwdBqnjYkVYU4xtC2p7cY2Ty8iTq530zjaCUnBQaNKdiIJwKkUVrffNQDL0qk3p90yce1UxyvrCNwawhDVZjbXaaz/s1600/1000085673.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg7LrC8e8NqNAaODw3aLxre-F8yan7mik7QjDQtT8xdUP2j-R2sFu40vOnBPUmGXkYzt47QcdTGQ1d34RWfToxv4kCgA6I6hyE_OWNau9l1MCmheSsHT8Xn0syme7bv821-MI1Beqs-Lygo0-GupNjaQqkno9393rDfIQRkU_51U-3A4axzFbum_msJWQfF/s1600/1000085373.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEisGN0_Lv6NfsyNIq73oAvdKFkaBtO4_7DcLhRsaK5nk1trsYkQdMjdhnnLYDB2-3h6P0WgqJDv4uKLj_EyNJ_KwcDrW3wB2Gdx3AfhG9jGLrCSHQg-DMwOW7lxNLZPrmqgzM7h9zsLNzFsO77rLQoq6e86Q2HLLPB0D9LIEz7dhY1gBSysryXg0U-ll1XD/s1600/1000085306.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiselRETGySHgOAGSoekpXYK6P9VdzcXYqDxq10GoMuB_Bj1jcUqVy_luENLMeyaFVoOwT4roZ9Ph7xJnVYKxDts4DmsYUvoHG0YEe1yvqfj1fTOtGSRcFUgHYmyRu4ZfrLIiiMGTS3SswD3BQccm_vGG_HvVxqswhwQ1vsHJuVglXM6P12r1H28VV8gHMS/s1600/1000085333.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiIrRo3Yh1LgTTUOgAe323f46Ai_8jxoXnw7fl2155uEq4_BQe5SUuS8LRmeru0l83c8R4jo-toczsxD8qL6pcaOsuQjgF5qFsEByg8_TYmMx6DPTG8b8LmJyCEwONuMcunjQK8Z4UJP5AYKsmyaAKig2H6ksqVpjB61AVpTo5ZIn4rIycK2T40grrnh4Sm/s1600/1000085344.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEi1kTysL3uMgBcnTlJ3XF05QmdbMTxzuXIViI_U4Cxo07Zlfiqw5IZB9gLIfcKh6X3oAd-uYH7pkGskZ3zdPVWr18v__IE9c20oU4lzgiN-o5x5e_r6L2QiDCJBB0iH-iwHPtJ140zEFE6kz9wZuh7NltQYbEY77TjVlVWW7FGOqUrWm6IUuG8P-mCFSWiz/s1600/1000085357.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEihuOpODKh49lE6oTMRYVCzyYklF3PehelKxVYdJ6f0rA908llRzP_G4XjblKyfgFNkIspfaxqgBEo-mOegeEFA6JgYmNRtZP1KJh4Fn28lRAQzni_wZeMb-8hitgSo6Lwlo42hHs_jEWM07IyNTy0AQ6zqEvnB-N3_f1QNEA8PqLbj8rJlCnssl_eUsM6T/s1600/IMG_20260607_002355_739.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjKWe9lV07OVjSw7VszJ1iKHTSdMPNYDz5JWebxMHp4FSzKDXeEl1C0ATMU3DcR-RCVctOg770fDVxgtzRDJYn3ZhAH1Ld9TF2ukcYBPZMbDtzF4xqNTptI2C7hyphenhyphenwdbSFuhUNXhhkx7yoJaWZJIyJh-Ys7qwHkoaRQvyF05M4piY3asZu2qQeOzXHktOJfp/s1600/IMG_20260607_001935_587.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEip9XST-StqesqSKcq0s0ZQ_Dq7vMy6uVBQbZPZOws6zPOzWJqI64Ju2T0BUbymsm06XsfqbbXHV0lOlzNBnl2VdDysxarrG1XaM6IGoY4H3xfcIlSwIHELHbkM-b1SNFMU60d7oJ66SWgIZc9p_pTqZtTWFIpp76KHurkbQ8ESEycG9wGp-YGHvEKJVLU/s1600/photo_2026-06-04_00-04-40.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjWuyazpMif7lGKxBKccJ6hxAToigSK9knlqd7LNxi7h72JKaoeyIAF4VWR-yrEk9Gz4_7lMp1LfhNRCShaSo9pa4cd-xD7oACIAWC7kvcAOilf0tRULwJ9JSdhntGjmavJ-hhcgDAHYkpRhMnbjenoey2l-r-gwvnEW9ulmAuTF7z5OhC6wmu2FHkO_tKf/s1600/1000084600.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhBGlcnsEu2BN5wEwUJmxGDY-q8hfEIL0OlY87AScWucsA89w76hUjAjMx3Zsb5H7nW_c7g4HtdYBxLaz9KCRSWuH9r4qqqAN2K5YuTes3MJ2RQcF92xvLY8PHgBIcMvvKGyjRu_hZ9bcamVzbyzLEyfWCO879G3MStPlggRZfmQH-BbWn5it7SEvAFlg8J/s1600/photo_2026-06-03_23-59-59.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiJyH6Y-9fgPYOBIQmMD7VRdlibovBcbLa4MSaZHvg2hSaPwgw0PM_0IeUFTu79zOa12jLbG3z21TESvzAWodi1zeV2VSkCxGyI6zEFSVS_9GldfXdpUNL03bMNW5b2NcOL83Cqm3kSqYPFkEwaF_ozWrfeEf6wiNLS3nhClt4jpHIWMLodHgIWe8e5KfOW/s1600/photo_2026-06-01_13-35-02.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg1_jL7WmFyYjMdIyrNPL5AqbpaK1YBsnn_p5yXvbmUmZJHTNRG59ERUfFj9lEKwqrX_ait4hzfnqAsX5Gj428zOHb1xIKayQqJv9e1QOvY9RaSEZpoNsIOhyJbuf_odLyBLqxznSpVWBsFdAsYSg3ZdvaNKhibesGzs7hcfr8tA2MAZvvlDqGxjDSLmFs/s1600/photo_2026-06-02_07-45-33.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhrvMOUabzQSZZIYAWVnOYdYLuf5J_wJro88EtwXdQ8SvSKqGtXAJl2L-2ZcL3aIIRSG5dqzjbUCzgZnBA4j5eTDWWbggeaDQxdyUcvQxoWTXe-daRs4QDeMdp-wGc4QuImaP-hVdwQtmRR27uuz9FxGY6cz-u8rIN_2KPmA3E-kBDYr10qzMlEg7i7pBQ-/s1600/photo_2026-05-24_14-06-07.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhf2kFMLDW8q5PI277KpLvfnNEmE1RU7cpUVWbgmZc-GfKTQF4kN4I172liiuDGqVLrgGS4ECZKsn_-qLd4RsQ_RfThupNwynAt_Vt3nT8gV8oiS2F05dgAXOIsZQ2NowFVPJyXCw3ugfBZ8C3PW4xaXiqgu3MXBGTbLY7nd2kRZ24CNneYuJgEpi2ZsZQ/s1600/photo_2026-06-01_12-03-34.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiuG6OglzNKK9SA2wh4KMyME6MoOfUEzH9QK5AdEMHi7Sb9wGsm75kWUBOmsA0UnvXb9wVEkw4MnArErUqfX5vyzZJpxgikKCiIFWv5U8i2_sluo3NhEOl8Bqu3JpEULdaGoHD2Ys_Kftr3i6fJ3KzoZaG7qLVDyiIuMILpGaEU0yCh_osdPA2PCWGF4Jg/s1600/photo_2026-05-26_22-08-38.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgPL5NttY6DmaWffTXmPSY6vGTLf_M9vXwwZzAPexldctn7AWFiU2pVmMmmgikvLrwDlM4CEEp6-UTC2qWnRzx1AgNTfUaHYpvM2y7x2KvOZsX3VQfD_vnqOxM4zgd-Sc3YFGSUCXZyMsM7fsGKP4kUzJmG2BH53nZyaf-x3gDJjW64kOtAuxAhZ_0g35YM/s1600/IMG_20260602_174441_860.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhg-717vQPV-ucrfx80u2JeAUJudtN9y2PCG4vdVmrT_bMrnIcnCc_JPBUS-QLRZpJ2seayZPJHVb3PCAKWKYM9fErXX4Rw0bx3-GCrwyP4zoitr_-Me0c24SF2B3_EPluN5H1ecMuDvtm2FteScWQF5STj20osseFj_J7DqiwTWdAeZyvsd1fXqJOVFvSF/s1600/1000081747.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjeXDdqmvI4ptG2KntFOU2YKoffNjqwvMTSX5vCQFDBd23WzjfDHG7iX6o4CyQaAB_kDNtWNvUy6fQ2Yv-Lv-k0m2APHR3cc7x4oJEzynjrYNC0j1bYo4FB6nLcxgVGRZlOxjU_lIbfORmVc_XMdYkGjt5m3xGwwmC_tR_qKiP0wCm7d_2TZkb3HaL0Ds3J/s1600/IMG_20260527_052024_535.jpg',
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg6Qo7q9NTjWerN8SIocdV630SJtq6VJ9VnDn_miVahppPVKD7OoGEE9lpzGVsE3UwZGyY5-_3DcjCCfWoWjM2CTjb2pt5N0XVNpGLEBeTQwoSj4dLyeECObVN5npshQE30B6t0Avs2lGuA5Xrwk08HwZoWMKKj6q6ZQC4pk7dWXL2GD1nIpAncOvHBKduj/s1600/IMG_20260602_165344_891.jpg'
+];
+
+function makeTitle(url){
+  let name=url.split("/").pop().replace(".html","").replace(/[-_]+/g," ");
+  return name.replace(/\b\w/g,c=>c.toUpperCase());
+}
+
+function renderVideos(list){
+  const grid=document.getElementById("videoGrid");
+  const noResult=document.getElementById("noResult");
+  grid.innerHTML="";
+  if(!list.length){noResult.style.display="block";return;}
+  noResult.style.display="none";
+
+  list.forEach(url=>{
+    const originalIndex=videos.indexOf(url);
+    const title=makeTitle(url);
+    const thumb=thumbnails[originalIndex] || "";
+
+    const card=document.createElement("div");
+    card.className="video-card";
+    card.innerHTML=`
+      <div class="thumb">
+        <img src="${thumb}" alt="${title}" loading="lazy"
+             onerror="this.style.display='none'">
+        <span class="badge">VIDEO</span>
+        <div class="play">▶</div>
+      </div>
+      <div class="card-content">
+        <div class="card-number">Video #${originalIndex+1}</div>
+        <div class="card-title">${title}</div>
+        <a class="watch-btn" href="${url}" target="_blank" rel="noopener noreferrer">▶ Watch Video</a>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+function searchVideos(){
+  const keyword=document.getElementById("searchBox").value.toLowerCase().trim();
+  renderVideos(videos.filter(url=>makeTitle(url).toLowerCase().includes(keyword)));
+}
+
+renderVideos(videos);
+</script>
+</body>
+</html>
